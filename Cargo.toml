@@ -1,0 +1,9 @@
+[package]
+name = "cargo-provision"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cms = { version = "0.2.3", features = ["pem"] }
+base64 = "0.21.7"
+der = { version = "=0.8.0-pre.0", features = ["alloc", "derive", "oid", "pem", "std"] }
