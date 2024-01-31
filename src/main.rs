@@ -1,21 +1,17 @@
 mod certificate;
 mod content;
-mod der;
 mod device;
 mod signer;
 
-use std::{env, process::Command};
+use std::env;
 
 use cms::{
-    cert::x509::{
-        der::{asn1::SetOfVec, Any, Decode},
-        spki::ObjectIdentifier,
-    },
-    content_info::{CmsVersion, ContentInfo},
-    signed_data::SignedData,
+    builder::SignedDataBuilder,
+    cert::x509::{der::Any, spki::ObjectIdentifier},
+    content_info::ContentInfo,
 };
 
-use crate::certificate::provisioning_certificate;
+use crate::device::devices;
 
 const PKCS7_SIGNED_DATA_OID: ObjectIdentifier =
     ObjectIdentifier::new_unwrap("1.2.840.113549.1.7.2");
@@ -28,16 +24,13 @@ fn main() {
     args.next().unwrap();
 
     let encaspulated_content_info = content::encapsulated_content_info();
-    let signer_infos = signer::signer_infos(&encaspulated_content_info);
+    let signer_info = signer::signer_info(&encaspulated_content_info);
 
-    let signed_data = SignedData {
-        version: CmsVersion::V1,
-        digest_algorithms: SetOfVec::new(),
-        encap_content_info: encaspulated_content_info,
-        certificates: None,
-        crls: None,
-        signer_infos,
-    };
+    let signed_data = SignedDataBuilder::new(&encaspulated_content_info)
+        .add_signer_info(signer_info)
+        .unwrap()
+        .build()
+        .unwrap();
 
     let content_info = ContentInfo {
         content_type: PKCS7_SIGNED_DATA_OID,

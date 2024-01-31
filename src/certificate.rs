@@ -1,10 +1,7 @@
 use std::process::Command;
 
 use base64::Engine;
-use cms::cert::{
-    x509,
-    x509::{der::Decode, Certificate},
-};
+use cms::cert::x509::{der::Decode, Certificate};
 
 pub(crate) fn developer_certificate(email: Option<String>) -> Certificate {
     // TODO: Suport searching for specific certificate hash e.g. if system has two
@@ -44,6 +41,6 @@ fn parse_certificate(string: String) -> Certificate {
         .trim_start_matches("-----BEGIN CERTIFICATE-----\n")
         .trim_end_matches("\n-----END CERTIFICATE-----\n")
         .replace('\n', "");
-    let mut base64 = base64::prelude::BASE64_STANDARD.decode(string).unwrap();
-    Certificate::from_der(&mut base64).unwrap()
+    let base64 = base64::prelude::BASE64_STANDARD.decode(string).unwrap();
+    Certificate::from_der(&base64).unwrap()
 }
